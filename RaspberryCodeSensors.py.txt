@@ -1,0 +1,45 @@
+import datetime
+import time
+import Adafruit_DHT
+import urllib2, urllib, httplib
+import json
+import os 
+from functools import partial
+import RPi.GPIO as GPIO
+from firebase import firebase
+now = time.localtime(time.time());
+GPIO.setmode(GPIO.BCM);
+GPIO.setup(22,GPIO.IN);
+firebase =firebase.FirebaseApplication('https://rapberry.firebaseio.com/');
+def update_firebase():
+        date = datetime.datetime.now();
+        humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.AM2302, 23);
+        cap=GPIO.input(22);
+        firebase.post('reality', {'date':date,'Temperature':t, 'humidity':h,'lumino':c})
+
+
+while True :
+        humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.AM2302, 23);
+	cap=GPIO.input(22);
+        date = time.strftime("%Y-%m-%d %H:%M:%S", now)
+
+	datee=str(date);
+	print(date,humidity,"%",temperature,"c",cap);  
+	time.sleep(1);
+        fichier = open("valeurs.txt", "a");
+	h=str(humidity);
+	t=str(temperature);
+	c=str(cap);
+	fichier.write(datee);
+	fichier.write("    ");
+	fichier.write(h);
+	fichier.write("    ");
+	fichier.write(t);
+	fichier.write("     ");
+	fichier.write(c);
+	fichier.write('\n');
+	fichier.close();
+	update_firebase();
+		
+        #sleepTime = int(sleepTime)
+	time.sleep(5);
